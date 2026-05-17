@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Grandes Videojuegos</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: #0314ac;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        .nav-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inicio { background-color: #fc3737; }
+        .videojuegos { background-color: #6c5ce7; }
+        .recomendaciones { background-color: #00b894; }
+        .contacto { background-color: #0984e3; }
+
+        .nav-button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-bottom: 80px;
+        }
+
+        .contact-form {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2d3436;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            background-color: #0314ac;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: #0252c9;
+        }
+
+        .social-links {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-links h2 {
+            color: #0314ac;
+            margin-bottom: 20px;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-icon {
+            font-size: 24px;
+            color: #0314ac;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .footer {
+            background-color: #0314ac;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Contacto</h1>
+    </div>
+
+    <div class="nav-container">
+        <a href="index.html" class="nav-button inicio">
+            <span class="icon">🏠</span>
+            Inicio
+        </a>
+        <a href="videojuegos.html" class="nav-button videojuegos">
+            <span class="icon">🎮</span>
+            Videojuegos
+        </a>
+        <a href="recomendaciones.html" class="nav-button recomendaciones">
+            <span class="icon">⭐</span>
+            Recomendaciones
+        </a>
+        <a href="contacto.html" class="nav-button contacto">
+            <span class="icon">📧</span>
+            Contacto
+        </a>
+    </div>
+
+    <div class="contact-container">
+        <div class="contact-form">
+            <h2>¡Contáctanos!</h2>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="asunto">Asunto:</label>
+                    <input type="text" id="asunto" name="asunto" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensaje">Mensaje:</label>
+                    <textarea id="mensaje" name="mensaje" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-button">Enviar Mensaje</button>
+            </form>
+        </div>
+
+        <div class="social-links">
+            <h2>Síguenos en redes sociales</h2>
+            <div class="social-icons">
+                <a href="https://www.instagram.com/ucpcorrientes?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" class="social-icon">📱 Instagram</a>
+                <a href="https://x.com/steamcito_ar" class="social-icon">🐦 Twitter</a>
+                <a href="https://www.facebook.com/search/top?q=mark%20zuckerberg&locale=es_LA" class="social-icon">📘 Facebook</a>
+                <a href="#" class="social-icon">🎮 Discord</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>La Primarca - El futuro del gaming</p>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videojuegos - Grandes Videojuegos</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: #0314ac;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        .nav-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inicio { background-color: #ff6b6b; }
+        .videojuegos { background-color: #6c5ce7; }
+        .recomendaciones { background-color: #00b894; }
+        .contacto { background-color: #0984e3; }
+
+        .nav-button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .games-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            margin-bottom: 60px;
+        }
+
+        .game-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .game-card h3 {
+            margin: 10px 0;
+            color: #2d3436;
+        }
+
+        .game-card p {
+            color: #636e72;
+            line-height: 1.6;
+        }
+
+        .footer {
+            background-color: #0314ac;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Videojuegos Destacados</h1>
+    </div>
+
+    <div class="nav-container">
+        <a href="index.html" class="nav-button inicio">
+            <span class="icon">🏠</span>
+            Inicio
+        </a>
+        <a href="videojuegos.html" class="nav-button videojuegos">
+            <span class="icon">🎮</span>
+            Videojuegos
+        </a>
+        <a href="recomendaciones.html" class="nav-button recomendaciones">
+            <span class="icon">⭐</span>
+            Recomendaciones
+        </a>
+        <a href="contacto.html" class="nav-button contacto">
+            <span class="icon">📧</span>
+            Contacto
+        </a>
+    </div>
+
+    <div class="games-container">
+        <a href="videojuego1.html" target="_blank" class="game-card">
+            <img src="https://i.pinimg.com/736x/f7/b5/69/f7b569d60df212d2ba73cc3bc3d441c3.jpg" alt="Agua, Fuego y Tierra">
+            <h3>Piedra, Papel y Tijera Maincra</h3>
+            <p>"Si perdes contra la máquina estas mal"</p>
+        </a>
+
+        <a href="videojuego2.html" target="_blank" class="game-card">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjbIJ8PF1tUbagwleC1QAvpd7o6w_BJXWJ1xEHnoi61fI_rHD-zfT0-K5zf2kwK183U1iwWl8nIJE1NmyXN1hkrpRgQHnhmRJbxFmMeGn8Tu3xq1FQtoprJW5vMPmF85BzkCcRFPbQlB_0/s1600/Warhammer40KMacragge%2527sHonourDestacado.jpg" alt="Juego de Memoria - La Primarca">
+            <h3>Juego de Memoria 40K</h3>
+            <p>"Acordate porque perdes"</p>
+        </a>
+
+        <a href="videojuego3.html" target="_blank" class="game-card">
+            <img src="https://i.blogs.es/c0c4c4/henry-cavill-space-marine-warhammer-40k/1366_2000.jpeg" alt="Space Marine Invaders">
+            <h3>Space Marine Invaders</h3>
+            <p>"Por el Emperador"</p>
+        </a>
+    </div>
+
+    <div class="footer">
+        <p>La Primarca - El futuro del gaming</p>
+    </div>
+</body>
+</html> 

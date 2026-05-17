@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recomendaciones - Grandes Videojuegos</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: #0314ac;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        .nav-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inicio { background-color: #fc3737; }
+        .videojuegos { background-color: #6c5ce7; }
+        .recomendaciones { background-color: #00b894; }
+        .contacto { background-color: #0984e3; }
+
+        .nav-button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-bottom: 80px;
+        }
+
+        .section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #0314ac;
+            border-bottom: 2px solid #00b894;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .game-tip {
+            background-color: #e0e0ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .update-item {
+            background-color: #fff3d0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .footer {
+            background-color: #0314ac;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Recomendaciones y Más</h1>
+    </div>
+
+    <div class="nav-container">
+        <a href="index.html" class="nav-button inicio">
+            <span class="icon">🏠</span>
+            Inicio
+        </a>
+        <a href="videojuegos.html" class="nav-button videojuegos">
+            <span class="icon">🎮</span>
+            Videojuegos
+        </a>
+        <a href="recomendaciones.html" class="nav-button recomendaciones">
+            <span class="icon">⭐</span>
+            Recomendaciones
+        </a>
+        <a href="contacto.html" class="nav-button contacto">
+            <span class="icon">📧</span>
+            Contacto
+        </a>
+    </div>
+
+    <div class="content-container">
+        <div class="section">
+            <h2>🎯 Objetivos de La Primarca</h2>
+            <p>Nuestros principales objetivos son:</p>
+            <ul>
+                <li>Crear una plataforma de distribución de videojuegos competitiva</li>
+                <li>Ofrecer una experiencia única para jugadores y desarrolladores</li>
+                <li>Construir una comunidad activa y comprometida</li>
+                <li>Promover el desarrollo de juegos independientes</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🎮 Trucos y Consejos</h2>
+            <div class="game-tip">
+                <h3>Minecraft</h3>
+                <ul>
+                    <li>Nunca caves directamente hacia abajo</li>
+                    <li>Mantén siempre antorchas a tu izquierda al explorar cuevas</li>
+                    <li>Construye tu primera casa cerca del punto de aparición</li>
+                </ul>
+            </div>
+            <div class="game-tip">
+                <h3>Rocket League</h3>
+                <ul>
+                    <li>Practica el tutorial de vuelo para mejorar tus habilidades aéreas</li>
+                    <li>Usa el modo de entrenamiento libre para practicar tiros</li>
+                    <li>Aprende a usar la cámara de pelota efectivamente</li>
+                </ul>
+            </div>
+            <div class="game-tip">
+                <h3>Zelda: Tears of the Kingdom</h3>
+                <ul>
+                    <li>Explora cada rincón del mapa para encontrar santuarios</li>
+                    <li>Usa el poder Ultrahand creativamente para resolver puzzles</li>
+                    <li>Cocina antes de las batallas importantes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🚀 Próximas Actualizaciones</h2>
+            <div class="update-item">
+                <h3>Fase 1 - Q2 2024</h3>
+                <ul>
+                    <li>Implementación de sistema de reseñas de usuarios</li>
+                    <li>Foro de la comunidad</li>
+                    <li>Sistema de logros</li>
+                </ul>
+            </div>
+            <div class="update-item">
+                <h3>Fase 2 - Q3 2024</h3>
+                <ul>
+                    <li>Lanzamiento de la aplicación móvil</li>
+                    <li>Sistema de streaming integrado</li>
+                    <li>Marketplace para creadores de contenido</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💭 Nuestros Deseos Futuros</h2>
+            <ul>
+                <li>Convertirnos en una plataforma líder en Latinoamérica</li>
+                <li>Organizar torneos y eventos de eSports</li>
+                <li>Crear un programa de apoyo para desarrolladores independientes</li>
+                <li>Establecer alianzas con las principales compañías de gaming</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>La Primarca - El futuro del gaming</p>
+    </div>
+</body>
+</html> 

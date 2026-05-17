@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria - La Primarca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: #0314ac;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .memory-container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px 20px 20px 20px;
+        }
+
+        .memory-title {
+            text-align: center;
+            color: #0314ac;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #fc3737;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            grid-gap: 15px;
+            justify-content: center;
+        }
+
+        .memory-card {
+            width: 70px;
+            height: 70px;
+            background: #e0e0ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .memory-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .memory-card.preview img {
+            display: block;
+        }
+
+        .memory-card.flipped img,
+        .memory-card.matched img {
+            display: block;
+        }
+
+        .memory-card .emoji {
+            display: none;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .reset-btn {
+            background: #0314ac;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+            .reset-btn:hover {
+                background: #020d7a;
+            }
+
+        .footer {
+            background: #0314ac;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        @media (max-width: 600px) {
+            .memory-board {
+                grid-template-columns: repeat(4, 50px);
+                grid-gap: 8px;
+            }
+
+            .memory-card {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Juego de Memoria</h1>
+    </div>
+    <div class="memory-container">
+        <h2 class="memory-title">¡Encuentra todas las parejas!</h2>
+        <div class="timer" id="timer">Tiempo: 60s</div>
+        <div class="memory-board" id="memory-board"></div>
+        <div class="controls">
+            <p id="moves">Movimientos: 0</p>
+            <p id="matches">Aciertos: 0</p>
+            <button class="reset-btn" onclick="resetGame()">Reiniciar</button>
+            <p id="win-message" style="color:#00b894; font-weight:bold;"></p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>La Primarca - El futuro del gaming</p>
+    </div>
+    <script>
+        const imagenes = [
+            'images/blood_angels.png', 'images/blood_angels.png',
+            'images/Dark_Angels.png', 'images/Dark_Angels.png',
+            'images/Night_Lords_GOAT.png', 'images/Night_Lords_GOAT.png',
+            'images/Sons_Of_Horus.png', 'images/Sons_Of_Horus.png',
+            'images/Ultamarinnes.png', 'images/Ultamarinnes.png',
+            'images/White_Scars.png', 'images/White_Scars.png',
+            'images/Word_Bearers.png', 'images/Word_Bearers.png',
+            'images/World_Eaters.png', 'images/World_Eaters.png'
+        ];
+
+        const emojis = [''];
+        let board = [];
+        let flippedCards = [];
+        let matched = 0;
+        let moves = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let gameActive = true;
+        const MAX_MOVES = 20; // Maximum number of moves allowed
+        let successfulMatches = 0; // Counter for successful matches
+
+        const boardElement = document.getElementById('memory-board');
+        const movesElement = document.getElementById('moves');
+        const winMessage = document.getElementById('win-message');
+        const timerElement = document.getElementById('timer');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            timerElement.textContent = `Tiempo: ${timeLeft}s`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `Tiempo: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = "¡Tiempo agotado!";
+                    gameActive = false;
+                    board.forEach(c => c.element.style.pointerEvents = "none");
+                    if (matched < imagenes.length) {
+                        winMessage.textContent = "¡Tiempo agotado! Intenta de nuevo.";
+                    }
+                }
+            }, 1000);
+        }
+
+        function createBoard() {
+            boardElement.innerHTML = '';
+            board = [];
+            matched = 0;
+            moves = 0;
+            successfulMatches = 0;
+            movesElement.textContent = 'Movimientos: 0';
+            document.getElementById('matches').textContent = 'Aciertos: 0';
+            winMessage.textContent = '';
+            gameActive = true;
+            shuffle(imagenes);
+            for (let i = 0; i < imagenes.length; i++) {
+                const card = document.createElement('div');
+                card.className = 'memory-card preview';
+                card.dataset.index = i;
+                card.innerHTML = `
+                    <img src="${imagenes[i]}" alt="Carta ${i + 1}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.querySelector('.emoji').style.display='block';">
+                    <span class="emoji">${emojis[i]}</span>
+                `;
+                card.addEventListener('click', () => flipCard(card, i));
+                board.push({ element: card, imagen: imagenes[i], emoji: emojis[i], flipped: false, matched: false });
+                boardElement.appendChild(card);
+            }
+
+            setTimeout(() => {
+                board.forEach(card => {
+                    card.element.classList.remove('preview');
+                });
+                startTimer();
+            }, 3000);
+
+            board.forEach(c => c.element.style.pointerEvents = "auto");
+        }
+
+        function flipCard(card, index) {
+            if (!gameActive) return;
+            if (board[index].flipped || board[index].matched || flippedCards.length === 2) return;
+            board[index].flipped = true;
+            card.classList.add('flipped');
+            flippedCards.push(index);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesElement.textContent = `Movimientos: ${moves}`;
+                
+                // Check if maximum moves reached
+                if (moves >= MAX_MOVES) {
+                    clearInterval(timerInterval);
+                    gameActive = false;
+                    board.forEach(c => c.element.style.pointerEvents = "none");
+                    winMessage.textContent = "¡Te quedaste sin movimientos! Intenta de nuevo.";
+                    return;
+                }
+
+                const [i1, i2] = flippedCards;
+                if (board[i1].imagen === board[i2].imagen) {
+                    board[i1].matched = true;
+                    board[i2].matched = true;
+                    card.classList.add('matched');
+                    board[i1].element.classList.add('matched');
+                    matched += 2;
+                    successfulMatches++;
+                    document.getElementById('matches').textContent = `Aciertos: ${successfulMatches}`;
+                    flippedCards = [];
+                    if (matched === imagenes.length) {
+                        clearInterval(timerInterval);
+                        winMessage.textContent = `¡Ganaste en ${moves} movimientos!`;
+                        timerElement.textContent = "¡Completado!";
+                        gameActive = false;
+                    }
+                } else {
+                    setTimeout(() => {
+                        board[i1].flipped = false;
+                        board[i2].flipped = false;
+                        board[i1].element.classList.remove('flipped');
+                        board[i2].element.classList.remove('flipped');
+                        flippedCards = [];
+                    }, 900);
+                }
+            }
+        }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            createBoard();
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
