@@ -159,6 +159,11 @@
         }
 
         function create() {
+            // [ANALYTICS] Registramos que arrancó una partida nueva
+            if (typeof gameAnalytics !== 'undefined') {
+                gameAnalytics.registrarNuevaPartida();
+            }
+
             // Add background
             this.add.image(400, 300, 'background');
 
@@ -272,6 +277,11 @@
             const projectile = projectiles.create(player.x, player.y - 20, 'projectile');
             projectile.setScale(2.0);
             projectile.setVelocityY(-400);
+
+            // [ANALYTICS] Registramos cada vez que el jugador dispara
+            if (typeof gameAnalytics !== 'undefined') {
+                gameAnalytics.trackEvent('DISPARO_REALIZADO');
+            }
         }
 
         function createBalloon() {
@@ -287,6 +297,11 @@
         }
 
         function showEndGameStats(scene, isVictory) {
+            // [ANALYTICS] Registramos el resultado de la partida
+            if (typeof gameAnalytics !== 'undefined') {
+                gameAnalytics.trackEvent(isVictory ? 'PARTIDA_GANADA' : 'PARTIDA_PERDIDA');
+            }
+
             // Desactivar colisiones
             scene.projectileCollider.active = false;
             scene.playerCollider.active = false;
@@ -332,6 +347,11 @@
             lives--;
             livesText.setText('Lives: ' + lives);
             
+            // [ANALYTICS] Registramos cada vez que se pierde una vida
+            if (typeof gameAnalytics !== 'undefined') {
+                gameAnalytics.trackEvent('VIDA_PERDIDA');
+            }
+
             if (lives <= 0) {
                 gameOver = true;
                 scene.balloonTimer.remove();
@@ -344,6 +364,11 @@
             projectile.destroy();
             score += 1;
             scoreText.setText('Score: ' + score + '/30');
+            
+            // [ANALYTICS] Registramos cada vez que destruye un globo con éxito
+            if (typeof gameAnalytics !== 'undefined') {
+                gameAnalytics.trackEvent('GLOBO_DESTRUIDO');
+            }
         }
 
         function balloonGroundCollision(scene, balloon) {
@@ -351,5 +376,6 @@
             loseLife(scene);
         }
     </script>
+    <script src="script.js"></script>
 </body>
-</html> 
+</html>
