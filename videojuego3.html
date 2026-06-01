@@ -15,6 +15,7 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            position: relative;
         }
 
         .game-container {
@@ -54,21 +55,10 @@
             gap: 10px;
         }
 
-        .inicio {
-            background-color: #fc3737;
-        }
-
-        .videojuegos {
-            background-color: #6c5ce7;
-        }
-
-        .recomendaciones {
-            background-color: #00b894;
-        }
-
-        .contacto {
-            background-color: #0984e3;
-        }
+        .inicio { background-color: #fc3737; }
+        .videojuegos { background-color: #6c5ce7; }
+        .recomendaciones { background-color: #00b894; }
+        .contacto { background-color: #0984e3; }
 
         .nav-button:hover {
             opacity: 0.9;
@@ -85,6 +75,41 @@
             bottom: 0;
             left: 0;
         }
+
+        /* Estilos para el panel flotante del ranking */
+        .ranking-panel {
+            position: absolute;
+            top: 150px;
+            right: 20px;
+            background-color: rgba(3, 20, 172, 0.9);
+            border: 3px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            width: 200px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            z-index: 1000;
+        }
+        
+        .ranking-panel h3 {
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 2px solid white;
+            padding-bottom: 8px;
+            font-size: 20px;
+        }
+        
+        .ranking-panel ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .ranking-panel li {
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
@@ -94,21 +119,24 @@
 
     <div class="nav-container">
         <a href="index.html" class="nav-button inicio">
-            <span class="icon">🏠</span>
-            Inicio
+            <span class="icon">🏠</span> Inicio
         </a>
         <a href="videojuegos.html" class="nav-button videojuegos">
-            <span class="icon">🎮</span>
-            Videojuegos
+            <span class="icon">🎮</span> Videojuegos
         </a>
         <a href="recomendaciones.html" class="nav-button recomendaciones">
-            <span class="icon">⭐</span>
-            Recomendaciones
+            <span class="icon">⭐</span> Recomendaciones
         </a>
         <a href="contacto.html" class="nav-button contacto">
-            <span class="icon">📧</span>
-            Contacto
+            <span class="icon">📧</span> Contacto
         </a>
+    </div>
+
+    <div class="ranking-panel">
+        <h3>Ranking Global</h3>
+        <ul id="ranking-list">
+            <li>Conectando al servidor...</li>
+        </ul>
     </div>
 
     <div class="game-container" id="game"></div>
@@ -162,6 +190,11 @@
             // [ANALYTICS] Registramos que arrancó una partida nueva
             if (typeof gameAnalytics !== 'undefined') {
                 gameAnalytics.registrarNuevaPartida();
+            }
+
+            // [WEBSOCKET] Iniciamos la conexión con el servidor
+            if (typeof wsManager !== 'undefined') {
+                wsManager.conectar();
             }
 
             // Add background
@@ -365,9 +398,14 @@
             score += 1;
             scoreText.setText('Score: ' + score + '/30');
             
-            // [ANALYTICS] Registramos cada vez que destruye un globo con éxito
+            // [ANALYTICS] LocalStorage
             if (typeof gameAnalytics !== 'undefined') {
                 gameAnalytics.trackEvent('GLOBO_DESTRUIDO');
+            }
+
+            // [WEBSOCKET] Enviamos el nuevo puntaje al servidor
+            if (typeof wsManager !== 'undefined') {
+                wsManager.enviarPuntaje(score);
             }
         }
 
