@@ -68,51 +68,123 @@ darkModeButton.onclick = toggleDarkMode;
 document.body.appendChild(darkModeButton); 
 
 
-
+// ==========================================
+// ANALYTICS LOCALES (TP1)
+// ==========================================
 class AnalyticsManager {
     constructor() {
-        // Clave bajo la cual se guardará todo en el LocalStorage
         this.storageKey = 'tp1_game_stats';
         this.stats = this.loadStats();
     }
 
-    // Cargar estadísticas previas o crear nuevas si no existen
     loadStats() {
         const savedData = localStorage.getItem(this.storageKey);
         if (savedData) {
-            return JSON.parse(savedData); // Convierte el texto guardado a un objeto JS
+            return JSON.parse(savedData); 
         }
-        // Estructura inicial si es la primera vez que juega
         return {
             partidasJugadas: 0,
             eventos: {}
         };
     }
 
-    // Función principal para registrar cualquier evento
     trackEvent(eventName) {
-        // Si el evento no existe en el objeto, lo inicializa en 0
         if (!this.stats.eventos[eventName]) {
             this.stats.eventos[eventName] = 0;
         }
-        // Suma 1 al contador de ese evento específico
         this.stats.eventos[eventName]++;
         this.save();
         console.log(`[Analytics] Evento capturado: ${eventName} | Cantidad: ${this.stats.eventos[eventName]}`);
     }
 
-    // Función específica para registrar una nueva partida
     registrarNuevaPartida() {
         this.stats.partidasJugadas++;
         this.save();
         console.log(`[Analytics] Nueva partida registrada. Total: ${this.stats.partidasJugadas}`);
     }
 
-    // Guarda el objeto actualizado en el LocalStorage
     save() {
         localStorage.setItem(this.storageKey, JSON.stringify(this.stats));
     }
 }
 
-// Inicializamos el gestor para que esté disponible globalmente
 const gameAnalytics = new AnalyticsManager();
+
+
+// ==========================================
+// SISTEMA DE WEBSOCKETS PARA RANKING (TP2)
+// ==========================================
+class WebSocketManager {
+    constructor(playerName) {
+        this.socket = null;
+        this.serverUrl = 'wss://gamehubmanager.azurewebsites.net/ws'; // Servidor de la cátedra
+        this.playerName = playerName || 'Jugador Anónimo';
+        this.gameName = 'Globos Explosivos';
+    }
+
+    conectar() {
+        this.socket = new WebSocket(this.serverUrl);
+
+        this.socket.onopen = () => {
+            console.log('[WebSocket] Conectado exitosamente al servidor.');
+        };
+
+        this.socket.onmessage = (event) => {
+            try {
+                const rankingData = JSON.parse(event.data);
+                this.actualizarRankingUI(rankingData);
+            } catch (error) {
+                console.error('[WebSocket] Error al procesar el JSON del ranking:', error);
+            }
+        };
+
+        this.socket.onerror = (error) => {
+            console.error('[WebSocket] Error de conexión:', error);
+        };
+
+        this.socket.onclose = () => {
+            console.log('[WebSocket] Desconectado.');
+        };
+    }
+
+    enviarPuntaje(puntajeActual) {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            // Estructura JSON requerida por la consigna
+            const data = {
+                game: this.gameName,
+                event: "puntaje_actualizado",
+                player: this.playerName,
+                value: puntajeActual
+            };
+            this.socket.send(JSON.stringify(data));
+        }
+    }
+
+    actualizarRankingUI(datos) {
+        const rankingContainer = document.getElementById('ranking-list');
+        if (!rankingContainer) return;
+
+        rankingContainer.innerHTML = ''; 
+
+        // Filtrar y mostrar el ranking
+        datos.forEach((jugador, index) => {
+            const valor = jugador.value !== undefined ? jugador.value : jugador.Value;
+            const li = document.createElement('li');
+            
+            // Destacar al jugador actual en la lista
+            if (jugador.Player === this.playerName) {
+                li.style.color = '#00ff00';
+                li.style.fontWeight = 'bold';
+            }
+            
+            li.textContent = `#${index + 1} ${jugador.Player} - ${valor} pts`;
+            rankingContainer.appendChild(li);
+        });
+    }
+}
+
+// Pedimos el nombre al usuario al cargar para enviarlo al WebSocket
+let nombreJugador = prompt("¡Bienvenido a Globos Explosivos! Ingresa tu nombre para el ranking global:", "Jugador");
+if (!nombreJugador) nombreJugador = "Invitado";
+
+const wsManager = new WebSocketManager(nombreJugador);
