@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#fc3737">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grandes Videojuegos</title>
@@ -147,5 +150,16 @@
     <div class="footer">
         <p>La Primarca - El futuro del gaming</p>
     </div>
+    <script src="script.js"></script>
+
+        <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('[PWA] Service Worker registrado correctamente.', reg))
+                .catch(err => console.log('[PWA] Error al registrar el Service Worker.', err));
+            });
+        }
+        </script>
 </body>
 </html> 
