@@ -128,6 +128,9 @@
             <span class="icon">📧</span>
             Contacto
         </a>
+        <button id="btn-instalar" class="nav-button" style="background-color: #27ae60; display: none;">
+            <span class="icon">📲</span> Instalar App
+        </button>
     </div>
 
     <div class="content">
@@ -143,16 +146,17 @@
                 Nuestra historia comienza en 2024, cuando unimos fuerzas con la idea de crear algo más que solo juegos: queremos construir un ecosistema donde jugadores y desarrolladores puedan encontrar, compartir y disfrutar experiencias únicas. Con creatividad, innovación y mucho esfuerzo, estamos dando los primeros pasos para hacer de esta visión una realidad.
                 
                 Este es solo el inicio. ¡Acompáñanos en este viaje y se parte del futuro del gaming! 🚀🎮</h2>
-            <!-- Aquí irá la descripción -->
         </div>
     </div>
 
     <div class="footer">
         <p>La Primarca - El futuro del gaming</p>
     </div>
+    
     <script src="script.js"></script>
 
-        <script>
+    <script>
+        // 1. Registrar el Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -160,6 +164,48 @@
                 .catch(err => console.log('[PWA] Error al registrar el Service Worker.', err));
             });
         }
-        </script>
+
+        // 2. Lógica del Botón de Instalación Personalizado
+        let eventoInstalacionDiferido;
+        const botonInstalar = document.getElementById('btn-instalar');
+
+        // El navegador avisa que la PWA cumple los requisitos y está lista para instalar
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('[PWA] Evento beforeinstallprompt disparado (La app es instalable).');
+            // Prevenimos la barrita mini por defecto
+            e.preventDefault();
+            // Guardamos el evento para dispararlo después
+            eventoInstalacionDiferido = e;
+            // Mostramos nuestro botón verde
+            botonInstalar.style.display = 'flex';
+        });
+
+        // Qué pasa cuando el usuario hace clic en nuestro botón
+        botonInstalar.addEventListener('click', async () => {
+            if (eventoInstalacionDiferido !== null) {
+                // Mostramos la ventana emergente real de instalación
+                eventoInstalacionDiferido.prompt();
+                
+                // Esperamos a ver qué eligió el usuario
+                const { outcome } = await eventoInstalacionDiferido.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('[PWA] El usuario aceptó la instalación.');
+                    // Ocultamos el botón porque ya se instaló
+                    botonInstalar.style.display = 'none';
+                } else {
+                    console.log('[PWA] El usuario canceló la instalación.');
+                }
+                
+                // Limpiamos el evento
+                eventoInstalacionDiferido = null;
+            }
+        });
+
+        // Ocultar el botón si la app ya está instalada
+        window.addEventListener('appinstalled', () => {
+            console.log('[PWA] La aplicación ya fue instalada.');
+            botonInstalar.style.display = 'none';
+        });
+    </script>
 </body>
-</html> 
+</html>
