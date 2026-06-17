@@ -18,6 +18,7 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            position: relative;
         }
 
         .game-container {
@@ -25,6 +26,7 @@
             border: 4px solid #fc3737;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            margin-bottom: 50px; /* Para que el footer no tape el juego */
         }
 
         .header {
@@ -41,6 +43,7 @@
             background-color: #f0f0f0;
             padding: 10px;
             width: 100%;
+            flex-wrap: wrap; /* Para que los botones no se aprieten */
         }
 
         .nav-button {
@@ -55,23 +58,14 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin: 5px;
         }
 
-        .inicio {
-            background-color: #fc3737;
-        }
-
-        .videojuegos {
-            background-color: #6c5ce7;
-        }
-
-        .recomendaciones {
-            background-color: #00b894;
-        }
-
-        .contacto {
-            background-color: #0984e3;
-        }
+        .inicio { background-color: #fc3737; }
+        .videojuegos { background-color: #6c5ce7; }
+        .recomendaciones { background-color: #00b894; }
+        .contacto { background-color: #0984e3; }
+        .btn-sensor { background-color: #e67e22; }
 
         .nav-button:hover {
             opacity: 0.9;
@@ -87,6 +81,42 @@
             position: fixed;
             bottom: 0;
             left: 0;
+            z-index: 1001; /* Asegura que quede siempre arriba */
+        }
+
+        /* Estilos para el panel flotante del ranking */
+        .ranking-panel {
+            position: absolute;
+            top: 150px;
+            right: 20px;
+            background-color: rgba(3, 20, 172, 0.9);
+            border: 3px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            width: 200px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            z-index: 1000;
+        }
+        
+        .ranking-panel h3 {
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 2px solid white;
+            padding-bottom: 8px;
+            font-size: 20px;
+        }
+        
+        .ranking-panel ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .ranking-panel li {
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -97,21 +127,27 @@
 
     <div class="nav-container">
         <a href="index.html" class="nav-button inicio">
-            <span class="icon">🏠</span>
-            Inicio
+            <span class="icon">🏠</span> Inicio
         </a>
         <a href="videojuegos.html" class="nav-button videojuegos">
-            <span class="icon">🎮</span>
-            Videojuegos
+            <span class="icon">🎮</span> Videojuegos
         </a>
         <a href="recomendaciones.html" class="nav-button recomendaciones">
-            <span class="icon">⭐</span>
-            Recomendaciones
+            <span class="icon">⭐</span> Recomendaciones
         </a>
         <a href="contacto.html" class="nav-button contacto">
-            <span class="icon">📧</span>
-            Contacto
+            <span class="icon">📧</span> Contacto
         </a>
+        <button id="btn-gyro" class="nav-button btn-sensor">
+            <span class="icon">📱</span> Activar Movimiento (Celular)
+        </button>
+    </div>
+
+    <div class="ranking-panel">
+        <h3>Ranking Global</h3>
+        <ul id="ranking-list">
+            <li>Conectando al servidor...</li>
+        </ul>
     </div>
 
     <div class="game-container" id="game"></div>
@@ -121,6 +157,39 @@
     </div>
 
     <script>
+        // ==========================================
+        // LÓGICA DEL GIROSCOPIO (TP3)
+        // ==========================================
+        let tiltX = 0; 
+        let gyroActivado = false;
+
+        document.getElementById('btn-gyro').addEventListener('click', function() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            activarSensores();
+                            this.style.display = 'none'; 
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                activarSensores();
+                this.style.display = 'none'; 
+            }
+        });
+
+        function activarSensores() {
+            window.addEventListener('deviceorientation', function(event) {
+                tiltX = event.gamma; // Inclinación izquierda/derecha
+            });
+            gyroActivado = true;
+            console.log("[PWA] Control por giroscopio activado. Gamma:", tiltX);
+        }
+
+        // ==========================================
+        // CÓDIGO DE PHASER (EL JUEGO)
+        // ==========================================
         const config = {
             type: Phaser.AUTO,
             width: 800,
@@ -162,27 +231,24 @@
         }
 
         function create() {
-            // [ANALYTICS] Registramos que arrancó una partida nueva
             if (typeof gameAnalytics !== 'undefined') {
                 gameAnalytics.registrarNuevaPartida();
             }
 
-            // Add background
+            if (typeof wsManager !== 'undefined') {
+                wsManager.conectar();
+            }
+
             this.add.image(400, 300, 'background');
 
-            // Create player
             player = this.physics.add.sprite(400, 500, 'player');
             player.setCollideWorldBounds(true);
             player.setScale(2.8);
             player.body.setSize(40, 40);
 
-            // Create projectile group
             projectiles = this.physics.add.group();
-
-            // Create balloon group
             balloons = this.physics.add.group();
 
-            // Create balloons periodically
             this.balloonTimer = this.time.addEvent({
                 delay: 1000,
                 callback: createBalloon,
@@ -190,41 +256,36 @@
                 loop: true
             });
 
-            // Add score text
             scoreText = this.add.text(16, 16, 'Score: 0/30', { 
-                fontSize: '32px', 
-                fill: '#fff',
-                stroke: '#000',
-                strokeThickness: 4
+                fontSize: '32px', fill: '#fff', stroke: '#000', strokeThickness: 4
             });
 
-            // Add lives text
             livesText = this.add.text(16, 56, 'Lives: 3', { 
-                fontSize: '32px', 
-                fill: '#fff',
-                stroke: '#000',
-                strokeThickness: 4
+                fontSize: '32px', fill: '#fff', stroke: '#000', strokeThickness: 4
             });
 
-            // Add instructions text
-            this.add.text(500, 520, 'Controles:\nFlechas: Movimiento\nEspacio: Disparar', {
-                fontSize: '20px',
-                fill: '#fff',
-                stroke: '#000',
-                strokeThickness: 3,
-                align: 'right'
+            // Agregamos toque en la pantalla para disparar (PWA friendly)
+            this.add.text(500, 520, 'Teclado: Flechas + Espacio\nCelular: Inclinar + Tocar', {
+                fontSize: '20px', fill: '#fff', stroke: '#000', strokeThickness: 3, align: 'right'
             });
 
-            // Add collision between projectiles and balloons
+            this.input.on('pointerdown', function (pointer) {
+                if (canShoot && !gameOver) {
+                    shootProjectile(this);
+                    canShoot = false;
+                    this.time.delayedCall(shootDelay, () => {
+                        canShoot = true;
+                    });
+                }
+            }, this);
+
             this.projectileCollider = this.physics.add.overlap(projectiles, balloons, popBalloon, null, this);
 
-            // Add collision between player and balloons
             this.playerCollider = this.physics.add.overlap(player, balloons, (player, balloon) => {
                 balloon.destroy();
                 loseLife(this);
             });
 
-            // Add space key for shooting
             this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         }
 
@@ -234,18 +295,33 @@
                 return;
             }
 
-            // Player movement
+            // Movimiento híbrido (Teclado o Giroscopio)
             const cursors = this.input.keyboard.createCursorKeys();
+            let isMovingWithKeyboard = false;
             
             if (cursors.left.isDown) {
                 player.setVelocityX(-300);
+                isMovingWithKeyboard = true;
             } else if (cursors.right.isDown) {
                 player.setVelocityX(300);
-            } else {
-                player.setVelocityX(0);
+                isMovingWithKeyboard = true;
+            } 
+            
+            if (!isMovingWithKeyboard) {
+                if (gyroActivado) {
+                    // Zona muerta para que no tiemble
+                    if (tiltX < -5) {
+                        player.setVelocityX(-300);
+                    } else if (tiltX > 5) {
+                        player.setVelocityX(300);
+                    } else {
+                        player.setVelocityX(0);
+                    }
+                } else {
+                    player.setVelocityX(0);
+                }
             }
 
-            // Shooting mechanics
             if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && canShoot) {
                 shootProjectile(this);
                 canShoot = false;
@@ -254,21 +330,18 @@
                 });
             }
 
-            // Check if any balloon reached the bottom
             balloons.getChildren().forEach(balloon => {
                 if (balloon.y > 580) {
                     balloonGroundCollision(this, balloon);
                 }
             });
 
-            // Check for victory
             if (score >= VICTORY_SCORE) {
                 gameOver = true;
                 this.balloonTimer.remove();
                 showEndGameStats(this, true);
             }
 
-            // Remove projectiles that are out of bounds
             projectiles.getChildren().forEach(projectile => {
                 if (projectile.y < 0) {
                     projectile.destroy();
@@ -281,7 +354,6 @@
             projectile.setScale(2.0);
             projectile.setVelocityY(-400);
 
-            // [ANALYTICS] Registramos cada vez que el jugador dispara
             if (typeof gameAnalytics !== 'undefined') {
                 gameAnalytics.trackEvent('DISPARO_REALIZADO');
             }
@@ -289,9 +361,7 @@
 
         function createBalloon() {
             if (gameOver) return;
-            
             if (balloons.getChildren().length >= MAX_BALLOONS) return;
-
             const x = Phaser.Math.Between(50, 750);
             const balloon = balloons.create(x, 0, 'balloon');
             balloon.setScale(2.0);
@@ -300,61 +370,34 @@
         }
 
         function showEndGameStats(scene, isVictory) {
-            // [ANALYTICS] Registramos el resultado de la partida
             if (typeof gameAnalytics !== 'undefined') {
                 gameAnalytics.trackEvent(isVictory ? 'PARTIDA_GANADA' : 'PARTIDA_PERDIDA');
             }
-
-            // Desactivar colisiones
             scene.projectileCollider.active = false;
             scene.playerCollider.active = false;
-            
-            // Crear un fondo semi-transparente
             const overlay = scene.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
             
-            // Título
             const title = scene.add.text(400, 200, isVictory ? '¡Victoria!' : 'Game Over!', {
-                fontSize: '64px',
-                fill: isVictory ? '#00ff00' : '#ff0000',
-                stroke: '#000',
-                strokeThickness: 6
+                fontSize: '64px', fill: isVictory ? '#00ff00' : '#ff0000', stroke: '#000', strokeThickness: 6
             }).setOrigin(0.5);
 
-            // Estadísticas
             const stats = scene.add.text(400, 300, 
-                `Estadísticas Finales:\n\n` +
-                `Globos Destruidos: ${score}/30\n` +
-                `Vidas Restantes: ${lives}`, {
-                fontSize: '32px',
-                fill: '#ffffff',
-                stroke: '#000',
-                strokeThickness: 4,
-                align: 'center'
+                `Estadísticas Finales:\n\nGlobos Destruidos: ${score}/30\nVidas Restantes: ${lives}`, {
+                fontSize: '32px', fill: '#ffffff', stroke: '#000', strokeThickness: 4, align: 'center'
             }).setOrigin(0.5);
 
-            // Botón de reinicio
-            const restartButton = scene.add.text(400, 400, 'Presiona ESPACIO para reiniciar', {
-                fontSize: '24px',
-                fill: '#ffffff',
-                stroke: '#000',
-                strokeThickness: 3
+            const restartButton = scene.add.text(400, 400, 'Toca aquí o ESPACIO para reiniciar', {
+                fontSize: '24px', fill: '#ffffff', stroke: '#000', strokeThickness: 3
             }).setOrigin(0.5);
 
-            // Agregar evento para reiniciar
-            scene.input.keyboard.once('keydown-SPACE', () => {
-                location.reload();
-            });
+            scene.input.keyboard.once('keydown-SPACE', () => { location.reload(); });
+            scene.input.once('pointerdown', () => { location.reload(); });
         }
 
         function loseLife(scene) {
             lives--;
             livesText.setText('Lives: ' + lives);
-            
-            // [ANALYTICS] Registramos cada vez que se pierde una vida
-            if (typeof gameAnalytics !== 'undefined') {
-                gameAnalytics.trackEvent('VIDA_PERDIDA');
-            }
-
+            if (typeof gameAnalytics !== 'undefined') { gameAnalytics.trackEvent('VIDA_PERDIDA'); }
             if (lives <= 0) {
                 gameOver = true;
                 scene.balloonTimer.remove();
@@ -367,11 +410,8 @@
             projectile.destroy();
             score += 1;
             scoreText.setText('Score: ' + score + '/30');
-            
-            // [ANALYTICS] Registramos cada vez que destruye un globo con éxito
-            if (typeof gameAnalytics !== 'undefined') {
-                gameAnalytics.trackEvent('GLOBO_DESTRUIDO');
-            }
+            if (typeof gameAnalytics !== 'undefined') { gameAnalytics.trackEvent('GLOBO_DESTRUIDO'); }
+            if (typeof wsManager !== 'undefined') { wsManager.enviarPuntaje(score); }
         }
 
         function balloonGroundCollision(scene, balloon) {
@@ -381,7 +421,7 @@
     </script>
     <script src="script.js"></script>
 
-        <script>
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
@@ -389,6 +429,6 @@
                 .catch(err => console.log('[PWA] Error al registrar el Service Worker.', err));
             });
         }
-        </script>
+    </script>
 </body>
 </html>
